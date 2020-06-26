@@ -5,25 +5,31 @@ import TasksList from './TasksList'
 
 
 class App extends Component {
-  constructor(props){
-    super(props)
-    this.state={
-      taskInput: "",
-      taskPriority: false,
-      taskDeadline: "",
-      minDate: '',
-      tasks: [
-        {id: 1, content: 'Pierwszy task', priority: false, done: false, deadline: ''},
-        {id: 2, content: 'Drugi task', priority: true, done: false, deadline: ''},
-      ],
-    }
-    this.getActualDate =()=>{
-      const actualDate = new Date()
-      actualDate.getDate()
-      console.log('1' + actualDate);
-    }
-    this.getActualDate()
+
+  state={
+    taskInput: "",
+    taskPriority: false,
+    taskDeadline: "",
+    actualDate: '',
+    maxID: 0,
+    tasks: [
+      {id: 1, content: 'Pierwszy task', priority: false, done: false, deadline: ''},
+      {id: 2, content: 'Drugi task', priority: true, done: true, deadline: ''},
+    ],
   }
+  
+  componentDidMount() {
+    const date = new Date().toDateString()
+    const day = new Date(date).getDate()
+    const month = new Date(date).getMonth() + 1
+    const year = new Date(date).getFullYear()
+    const actualDate = `${year}-${month<10 ? '0'+month : month}-${day}`
+    this.setState({
+      taskDeadline : actualDate,
+      actualDate,
+    })
+  }
+  
 
   handleTaskInput=(e)=>{
     this.setState({
@@ -38,10 +44,30 @@ class App extends Component {
   }
 
   handleTaskDeadline=(e)=>{
-    console.log(e.target.value);
     this.setState({
       taskDeadline: e.target.value
-  })
+    })
+  }
+  
+  handleSubmit=(e)=>{
+    e.preventDefault()
+    let maxId = 0
+    if(this.state.tasks.length > 0){
+      this.state.tasks.map(task => (task.id > maxId ? maxId = task.id : null))
+    }
+    this.setState({
+      tasks: this.state.tasks.concat({
+        id: maxId, 
+        content: this.state.taskInput,
+        priority: this.state.taskPriority,
+        done: false,
+        deadline: this.state.taskDeadline
+      })
+    })
+  }
+
+  findMaxID=()=>{
+    
   }
 
 
@@ -55,11 +81,13 @@ class App extends Component {
           taskPriority={this.state.taskPriority}
           handleTaskDeadline={this.handleTaskDeadline}
           taskDeadline={this.state.taskDeadline}
+          actualDate={this.state.actualDate}
+          submit={this.handleSubmit}
           />
         <br/>
         =================================================
         <br/>
-        <TasksList/>
+        <TasksList tasks={this.state.tasks}/>
 
       </div>
     );
