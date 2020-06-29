@@ -13,17 +13,17 @@ class App extends Component {
     actualDate: '',
     maxID: 0,
     tasks: [
-      {id: 1, content: 'Pierwszy task', priority: false, done: false, deadline: ''},
-      {id: 2, content: 'Drugi task', priority: true, done: true, deadline: ''},
+      {id: 0, content: 'Task 1', done: false, deadline: '2020-06-29', priority: true, finishDate: ''},
+      {id: 1, content: 'zzz', done: false, deadline: '2020-06-30', priority: false, finishDate: ''},
+      {id: 2, content: 'Task 3', done: true, deadline: '2020-07-01', priority: true, finishDate: ''},
+      {id: 3, content: 'Task 4', done: false, deadline: '2020-07-02', priority: false, finishDate: ''},
+      {id: 4, content: 'Task 5', done: true, deadline: '2020-07-03', priority: true, finishDate: ''},
     ],
   }
   
   componentDidMount() {
-    const date = new Date().toDateString()
-    const day = new Date(date).getDate()
-    const month = new Date(date).getMonth() + 1
-    const year = new Date(date).getFullYear()
-    const actualDate = `${year}-${month<10 ? '0'+month : month}-${day}`
+    const date = new Date().toISOString().slice(0,10)
+    const actualDate = date
     this.setState({
       taskDeadline : actualDate,
       actualDate,
@@ -51,13 +51,18 @@ class App extends Component {
   
   handleSubmit=(e)=>{
     e.preventDefault()
-    let maxId = 0
+    let id = 0
     if(this.state.tasks.length > 0){
-      this.state.tasks.map(task => (task.id > maxId ? maxId = task.id : null))
+      this.state.tasks.map(task => (task.id >= id ? id = task.id+1 : null))
     }
     this.setState({
+      taskInput: "",
+      taskPriority: false,
+      taskDeadline: "",
+      actualDate: '',
+      finishDate: '',
       tasks: this.state.tasks.concat({
-        id: maxId, 
+        id, 
         content: this.state.taskInput,
         priority: this.state.taskPriority,
         done: false,
@@ -66,10 +71,23 @@ class App extends Component {
     })
   }
 
-  findMaxID=()=>{
-    
+  handleTaskDelete = (taskId)=>{
+    const tasks = this.state.tasks.filter(task => (task.id !== taskId))
+    this.setState({
+      tasks
+    })
   }
 
+  handleTaskDone = (taskId)=>{
+    const tasks = this.state.tasks.map(task => {
+      if(task.id === taskId){
+        task.done = !task.done
+        task.finishDate = new Date().getTime()
+      }
+      return task
+    })
+    this.setState({tasks})
+  }
 
   render() {
     return (
@@ -87,7 +105,11 @@ class App extends Component {
         <br/>
         =================================================
         <br/>
-        <TasksList tasks={this.state.tasks}/>
+        <TasksList 
+          tasks={this.state.tasks}
+          delete={this.handleTaskDelete}
+          status={this.handleTaskDone}
+        />
 
       </div>
     );

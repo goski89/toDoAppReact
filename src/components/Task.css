@@ -1,3 +1,9 @@
-span{
-    display: block;
+.task{
+    display: block;   
+}
+.task .priority {
+ color: red;
+}
+.task .btnDelTask{
+    margin-left: 30px;
 }
